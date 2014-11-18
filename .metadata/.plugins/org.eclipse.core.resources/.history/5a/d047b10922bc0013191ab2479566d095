@@ -1,0 +1,240 @@
+package graphElements;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+public class View extends JFrame implements MouseListener
+{
+	private static final long serialVersionUID = 1L;
+	private JButton addNode, removeNode, addEdge, removeEdge, calculate;
+	private JLabel description;
+	private JRadioButton straight, curved;
+	private JPanel controlPanel, drawingPanel, nodesPanel, edgesPanel, proceedPanel;
+	private ButtonGroup choice;
+	private int x=-1, y=-1, lastX=x, lastY=y;
+	private static char[] nodeNames = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+		 'Q', 'R', 'S', 'T', 'U', 'V', 'X', 'Y', 'Z'};
+	private static int nodeCounter=0;
+	private boolean addingNode = false, addingSource = false, removingNode = false, addingTarget = false, removingSource = false
+			, removingTarget = false;
+	private DrawingArea.Node source= null, target = null;
+	
+	public View()
+	{
+		setLayout(new BorderLayout());
+		initializeComponents();
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(1200,700);
+		setVisible(true);
+		setTitle("SFG Solver");
+		add(controlPanel, BorderLayout.NORTH);
+		add(drawingPanel, BorderLayout.CENTER);
+		addMouseListener(this);
+	}
+	
+	private void initializeComponents()
+	{
+		addNode = new JButton("Add Node");
+		addNode.addActionListener(addVertex);
+		removeNode= new JButton("Remove Node");
+		removeNode.addActionListener(deleteVertex);
+		addEdge = new JButton("Add Edge");
+		addEdge.addActionListener(newEdge);
+		removeEdge = new JButton("Remove Edge");
+		removeEdge.addActionListener(deleteEdge);
+		calculate = new JButton("Calculate!");
+		calculate.addActionListener(proceed);
+		straight = new JRadioButton("Straight", true);
+		curved = new JRadioButton("Curved", false);
+		choice = new ButtonGroup();
+		choice.add(straight);
+		choice.add(curved);
+		description = new JLabel();
+		description.setVisible(false);
+		controlPanel = new JPanel(new FlowLayout());
+		controlPanel.setSize(new Dimension(400, 700));
+		nodesPanel = new JPanel(new BorderLayout());
+		edgesPanel = new JPanel(new BorderLayout());
+		proceedPanel = new JPanel(new FlowLayout());
+		drawingPanel = new DrawingArea();
+		nodesPanel.add(description, BorderLayout.NORTH);
+		nodesPanel.add(addNode, BorderLayout.CENTER);
+		nodesPanel.add(removeNode, BorderLayout.SOUTH);
+		edgesPanel.add(addEdge, BorderLayout.NORTH);
+		edgesPanel.add(straight, BorderLayout.WEST);
+		edgesPanel.add(curved, BorderLayout.EAST);
+		edgesPanel.add(removeEdge, BorderLayout.SOUTH);
+		proceedPanel.add(calculate);
+		controlPanel.add(nodesPanel);
+		controlPanel.add(edgesPanel);
+		controlPanel.add(proceedPanel);
+		
+	}
+	
+	ActionListener addVertex = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			description.setText("Please Allocate the Vertex To be added");
+			description.setVisible(true);
+			addingNode = true;
+		}
+	};
+	
+	ActionListener deleteVertex = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			description.setText("Please Allocate the Vertex To be Deleted");
+			description.setVisible(true);
+			removingNode = true;
+		}
+	};
+	
+	ActionListener newEdge = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			description.setText("Please Allocate the Source of the Edge");
+			description.setVisible(true);
+			addingSource = true;
+		}
+	};
+	
+	ActionListener deleteEdge = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			description.setText("Please Allocate the Source of the Edge");
+			description.setVisible(true);
+			removingSource = true;
+		}
+	};
+	
+	ActionListener proceed = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			
+		}
+	};
+	
+	public static void main(String[] args) {
+		new View();
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {}
+
+	@Override
+	public void mousePressed(MouseEvent e) 
+	{
+		x = e.getX();
+		y = e.getY()-80;
+		if(addingNode&&x!=-1&&y!=-1&&x!=lastX&&y!=lastY)
+		{
+			((DrawingArea) drawingPanel).addNode((nodeNames[nodeCounter]+""), x,y);
+			nodeCounter++;
+			addingNode = false;
+			description.setVisible(false);
+		}
+		else if(removingNode&&x!=-1&&y!=-1&&x!=lastX&&y!=lastY)
+		{
+			((DrawingArea) drawingPanel).removeNode(x, y-20);
+			removingNode = false;
+			description.setVisible(false);
+		}
+		else if(addingSource&&x!=-1&&y!=-1&&x!=lastX&&y!=lastY)
+		{
+			if(((DrawingArea) drawingPanel).getNode(x, y-20)!=null)
+			{
+				source = ((DrawingArea) drawingPanel).getNode(x, y-20);
+				addingSource = false;
+				addingTarget = true; 
+				description.setText("Please Allocate the Target of the Edge");
+			}
+			else
+			{
+				description.setVisible(false);
+			}
+		}
+		else if(addingTarget&&x!=-1&&y!=-1&&x!=lastX&&y!=lastY)
+		{
+			if(((DrawingArea) drawingPanel).getNode(x, y-20)!=null)
+			{
+				
+				target = ((DrawingArea) drawingPanel).getNode(x, y-20);
+				addingTarget = false; 
+				description.setVisible(false);
+				double weight = Double.parseDouble(JOptionPane.showInputDialog("Please Enter the Weight of this Edge"));
+				if(straight.isEnabled())
+					((DrawingArea) drawingPanel).addEdge(source, target, weight);
+				else
+					((DrawingArea) drawingPanel).addCurvedEdge(source, target, weight);
+			}
+			else
+			{
+				description.setVisible(false);
+			}
+		}
+		else if(removingSource&&x!=-1&&y!=-1&&x!=lastX&&y!=lastY)
+		{
+			if(((DrawingArea) drawingPanel).getNode(x, y-20)!=null)
+			{
+				source = ((DrawingArea) drawingPanel).getNode(x, y-20);
+				removingSource = false;
+				removingTarget = true; 
+				description.setText("Please Allocate the Target of the Edge");
+			}
+			else
+			{
+				description.setVisible(false);
+			}
+		}
+		else if(removingTarget&&x!=-1&&y!=-1&&x!=lastX&&y!=lastY)
+		{
+			if(((DrawingArea) drawingPanel).getNode(x, y-20)!=null)
+			{
+				
+				target = ((DrawingArea) drawingPanel).getNode(x, y-20);
+				addingTarget = false; 
+				description.setVisible(false);
+				((DrawingArea) drawingPanel).removeEdge(source, target);
+			}
+			else
+			{
+				description.setVisible(false);
+			}
+		}
+		lastX = x;
+		lastY = y;
+	}
+
+}

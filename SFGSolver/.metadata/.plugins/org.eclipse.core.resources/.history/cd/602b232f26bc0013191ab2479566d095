@@ -1,0 +1,115 @@
+package graphElements;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class FindPaths<T> 
+{
+    private final Graph<T> graph;
+    
+    public FindPaths(Graph<T> graph) 
+    {
+        if (graph == null)
+            throw new NullPointerException("The input graph cannot be null.");
+        this.graph = graph;
+    }
+
+    private void validate (T source, T destination) 
+    {
+        if (source == null)
+            throw new NullPointerException("The source: " + source + " cannot be  null.");
+        else if (destination == null)
+            throw new NullPointerException("The destination: " + destination + " cannot be  null.");
+    }
+    
+    public List<List<T>> getPaths(T source, T destination) 
+    {
+        validate(source, destination);
+        List<List<T>> paths = new ArrayList<List<T>>();   
+        getPaths(source, destination, paths, new LinkedHashSet<T>());
+        return (getForwardPaths(source, destination, paths));
+    }
+    
+    private void getPaths (T current, T destination, List<List<T>> paths, LinkedHashSet<T> path) 
+    {
+        path.add(current);
+        if (current == destination) 
+        {
+            paths.add(new ArrayList<T>(path));
+            path.remove(current);
+            return;
+        }
+        final Set<T> edges  = graph.edgesFrom(current).keySet();
+        for (T t : edges) 
+        	if (!path.contains(t))
+                getPaths (t, destination, paths, path);
+        path.remove(current);
+    }
+    
+    private List<List<T>> getForwardPaths(T source, T destination, List<List<T>> paths)
+    {
+    	List<List<T>> forwardPaths = new ArrayList<List<T>>();
+    	for(int i=0;i<paths.size();i++)
+    		if(paths.get(i).get(0).equals(source)&&paths.get(i).get(paths.get(i).size()-1).equals(destination)
+				&&foundElementTwice(paths.get(i)))
+    			forwardPaths.add(paths.get(i));
+    	return forwardPaths;
+    }
+    
+    public List<Loop<T>> getLoops(T source, List<List<T>> paths)
+    {
+    	List<Loop<T>> loops = new ArrayList<Loop<T>>();
+    	//Condition of Self Loops
+    	for(int i=0;i<graph.edges.get(source).size();i++)
+    	{
+    		if(source==graph.edges.get(source).get(i))
+    		{
+    			Loop<T> l = new Loop<T>(source);
+    			l.nodes.add(source);
+    			loops.add(l);
+    		}
+    	}
+    	
+    	//Otherwise
+    	
+    	return loops;
+    }
+    
+    private boolean foundElementTwice(List<T> p)
+    {
+    	for(int i=1;i<p.size();i++)
+    		if((p.get(i).toString().charAt(0))<=(p.get(i-1).toString().charAt(0)))
+    				return false;
+    	return true;
+    }
+    
+    @SuppressWarnings({ "unchecked" })
+	public boolean[][] contructAdjacencyMatrix() {
+		// TODO Auto-generated method stub
+		int row = 0, col = 0;
+		boolean [][] adj_matrix = new boolean[graph.graph.size()][graph.graph.size()];
+		
+		for (Map.Entry<T, ArrayList<T>> entry : graph.edges.entrySet()) {
+			String key = (String)entry.getKey();
+		    ArrayList<String> value = (ArrayList<String>)entry.getValue();
+		    row = linearSearch(key.charAt(0));
+		    for (int i = 0; i < value.size(); i++) {
+		    	col = linearSearch(value.get(i).charAt(0));
+		    	adj_matrix[row][col] = true;
+		    }
+		}
+		return adj_matrix;
+	}
+
+	private int linearSearch(char key) {
+		// TODO Auto-generated method stub
+		for (int i = 0; i < View.nodeNames.length; i++) {
+			if (key == View.nodeNames[i]) return i;
+		}
+		return -1;
+	}
+}
+

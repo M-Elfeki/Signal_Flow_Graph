@@ -1,0 +1,56 @@
+package main;
+
+import graphElements.FindPaths;
+import graphElements.Graph;
+import graphElements.View;
+
+import java.util.List;
+
+public class Main 
+{
+	//public static GraphDraw frame = new GraphDraw();
+	
+	public static void main(String[] args) 
+	{
+        Graph<String> graph = new Graph<String>();
+     
+        graph.addNode("A");
+        graph.addNode("B");
+        graph.addNode("C");
+        graph.addNode("D");
+        graph.addNode("E");
+        graph.addNode("F");
+        graph.addNode("G");
+
+        graph.addEdge("A", "B", 10);
+        graph.addEdge("B", "C", 10);
+        graph.addEdge("C", "D", 10);
+        graph.addEdge("D", "E", 10);
+        graph.addEdge("E", "F", 10);
+        graph.addEdge("F", "G", 10);
+        graph.addEdge("C", "B", 10);
+        graph.addEdge("D", "B", 10);
+        graph.addEdge("E", "D", 10);
+        graph.addEdge("D", "F", 10);
+        graph.addEdge("F", "E", 10);
+        graph.addEdge("C", "F", 10);
+
+        FindPaths<String> findPaths = new FindPaths<String>(graph);
+        List<List<String>> paths = findPaths.getPaths("A", "G");
+        
+        for(int i=0;i<paths.size();i++)
+        	System.out.println(paths.get(i).toString());
+        
+        boolean [][] adj = findPaths.contructAdjacencyMatrix();
+        for (int i = 0; i < adj.length; i++) {
+        	for (int j = 0; j < adj[0].length; j++) {
+        		if (j == 0) System.out.print(View.nodeNames[i] + "\t");
+        		if (adj[i][j] == true) System.out.print("1\t");
+        		else System.out.print("0\t");
+        	}
+        	System.out.println();
+        }
+        
+        
+    }
+}
